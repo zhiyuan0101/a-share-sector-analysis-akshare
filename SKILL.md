@@ -16,19 +16,18 @@ agent_created: true
 
 ## 环境准备
 
-只需一个带 akshare 的 Python 环境。本机已就绪的统一路径：
+只需一个带 akshare 的 Python 3 环境：
 
 ```bash
 # 已装好时直接验证
-"C:/Users/wzy/.workbuddy/binaries/python/envs/default/Scripts/python.exe" -c "import akshare; print(akshare.__version__)"
+python -c "import akshare; print(akshare.__version__)"
 
 # 未安装时（一次性）
-"C:/Users/wzy/.workbuddy/binaries/python/versions/3.13.12/python.exe" -m venv "C:/Users/wzy/.workbuddy/binaries/python/envs/default"
-"C:/Users/wzy/.workbuddy/binaries/python/envs/default/Scripts/pip.exe" install akshare
+pip install akshare
 ```
 
-后续所有命令用 `PY="C:/Users/wzy/.workbuddy/binaries/python/envs/default/Scripts/python.exe"`（**取数用**，需要 akshare）。
-`calc_changes.py` 是纯标准库，用任意 Python 3 均可（含 `.../versions/3.13.12/python.exe`）。
+后续所有命令用 `PY=python`（**取数用**，需要 akshare）。
+`calc_changes.py` 是纯标准库，用任意 Python 3 均可。
 
 > **不要用东方财富接口**（`stock_board_industry_name_em` 等）：在部分网络环境下会被代理拦截，抛 `ProxyError`。申万宏源接口可直连。
 
@@ -39,7 +38,7 @@ agent_created: true
 ### Step 1 · 抓取板块列表与 K 线
 
 ```bash
-PY="C:/Users/wzy/.workbuddy/binaries/python/envs/default/Scripts/python.exe"
+PY=python
 "$PY" scripts/fetch_sw2.py --out-dir ./data --workers 6
 ```
 
@@ -58,7 +57,7 @@ PY="C:/Users/wzy/.workbuddy/binaries/python/envs/default/Scripts/python.exe"
 ### Step 2 · 计算多周期涨跌幅并排序
 
 ```bash
-CALC="C:/Users/wzy/.workbuddy/binaries/python/versions/3.13.12/python.exe"
+CALC=python
 
 # 周涨幅（Top 30）
 "$CALC" scripts/calc_changes.py --input data/kline_data.json --sector-info data/sectors.json \
@@ -83,12 +82,11 @@ CALC="C:/Users/wzy/.workbuddy/binaries/python/versions/3.13.12/python.exe"
 
 ### Step 3 · 生成全景图表
 
-用 `show_widget`（先 `read_me` 加载 `chart` 模块）画**周涨幅 Top 15 横向柱状图**。
+用当前环境里任意可用的图表方案（如 `scripts/render_chart.py` 的 matplotlib 示例，或 ECharts / 前端组件 / 其他内置图表工具）画**周涨幅 Top 15 横向柱状图**。
 
 - 深色主题下：刻度文字 `#E6EDF3`、网格 `rgba(255,255,255,0.07)`
 - **红涨绿跌**：涨 `#ef4444`，跌 `#22c55e`
-- 容器高度 = `bars × 40 + 80`；15 根 → 680px
-- 用自定义插件在柱尾标注数值，禁用默认 legend，改用 HTML 图例
+- 柱尾标注数值，不用默认 legend，用简短图例标注红涨绿跌
 
 ### Step 4 · 检索涨跌原因
 
@@ -111,7 +109,7 @@ CALC="C:/Users/wzy/.workbuddy/binaries/python/versions/3.13.12/python.exe"
 
 ## 关键注意事项
 
-1. **数据滞后 2 个交易日**。`index_hist_sw` 的 `latestDate` 通常比当前交易日早 2 天，必须在报告开头显式声明，并在风险提示里说明这两天的行情未纳入。
+1. **数据滞后 1~2 个交易日**。`index_hist_sw` 返回的 `latestDate` 通常比当前交易日早 1 天，偶尔 2 天；以抓取实际返回的 `latestDate` 为准，必须在报告开头显式声明，并在风险提示里说明最新一两个交易日未纳入。
 2. **红涨绿跌**，所有图表表格遵循 A 股惯例。
 3. **僵尸指数必须剔除**，否则它们的"最新价"是几个月前的，会严重污染排名。
 4. **涨跌幅为 `None`** 表示历史数据不足 N 个交易日，排序时沉底。

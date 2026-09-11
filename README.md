@@ -10,11 +10,11 @@ A股申万二级行业（124 个）板块行情分析技能，纯 Python + [aksh
 
 ## 安装
 
-把整个目录复制到 `~/.workbuddy/skills/`（或项目的 `.workbuddy/skills/`）：
+把整个目录复制到你所用 Agent 的技能目录（如 Claude Code 的 `~/.claude/skills/`，或其他支持 SKILL.md 约定的技能目录）：
 
 ```bash
 git clone https://github.com/zhiyuan0101/a-share-sector-analysis-akshare.git
-cp -r a-share-sector-analysis-akshare ~/.workbuddy/skills/
+cp -r a-share-sector-analysis-akshare ~/.claude/skills/
 ```
 
 技能通过 `SKILL.md` 的 frontmatter（`name` / `description`）被自动识别和触发，无需额外注册。
@@ -25,7 +25,7 @@ cp -r a-share-sector-analysis-akshare ~/.workbuddy/skills/
 pip install akshare
 ```
 
-数据来自申万宏源研究（经 akshare 接口），滞后约 2 个交易日；如需实时数据，请配合 `westock-mcp` 连接器使用。
+数据来自申万宏源研究（经 akshare 接口），滞后约 1~2 个交易日（以抓取返回的 `latestDate` 为准）；如需实时数据，请配合行情类 MCP 连接器使用。
 
 ## 说明
 
