@@ -3,8 +3,8 @@
 
 Standalone matplotlib implementation of the skill's Step 3. Any other charting
 stack (ECharts, frontend components, built-in tools) may be used instead as long
-as the style rules are respected: dark theme, red-up/green-down, value labels
-at bar ends.
+as the style rules are respected: dark theme, all-red bars (gainers only),
+value labels at bar ends.
 
 Requires: pip install matplotlib
 
@@ -53,8 +53,9 @@ def main():
     plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei", "Noto Sans CJK SC"]
     plt.rcParams["axes.unicode_minus"] = False
 
-    # A-share convention: red = up, green = down
-    colors = ["#ef4444" if v >= 0 else "#22c55e" for v in vals]
+    # The weekly Top-15 list contains gainers only, so every bar is red
+    # (A-share convention: red = up). No green is used anywhere.
+    colors = ["#ef4444"] * len(vals)
 
     fig, ax = plt.subplots(figsize=(10, 0.68 * len(rows) + 1.2), dpi=110)
     fig.patch.set_facecolor("#0d1117")
@@ -66,14 +67,14 @@ def main():
     ax.grid(axis="x", color=(1, 1, 1, 0.07), linewidth=0.8)
     ax.set_axisbelow(True)
     for bar, v in zip(bars, vals):
-        ax.text(bar.get_width() + max(abs(min(vals)), max(vals)) * 0.01,
+        ax.text(bar.get_width() + max(abs(v) for v in vals) * 0.01,
                 bar.get_y() + bar.get_height() / 2, f"{v:+.2f}%",
                 va="center", ha="left", color="#E6EDF3", fontsize=10)
-    lo, hi = min(min(vals), 0), max(vals) * 1.15
+    lo, hi = 0, max(vals) * 1.15
     ax.set_xlim(lo, hi)
     ax.set_title("申万二级行业 周涨幅 Top 15（近5个交易日）",
                  color="#E6EDF3", fontsize=14, pad=14)
-    fig.text(0.99, 0.01, "■ 红涨 ■ 绿跌 · 数据源：申万宏源研究(akshare)",
+    fig.text(0.99, 0.01, "■ 涨幅（红） · 数据源：申万宏源研究(akshare)",
              ha="right", color="#8b949e", fontsize=9)
     plt.tight_layout()
     plt.savefig(args.out, facecolor=fig.get_facecolor(), bbox_inches="tight")
